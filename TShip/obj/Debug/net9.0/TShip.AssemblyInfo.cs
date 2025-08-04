@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TShip")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+95fcf99f825fc6086e9c552bdd744a96bc5c799d")]
 [assembly: System.Reflection.AssemblyProductAttribute("TShip")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TShip")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

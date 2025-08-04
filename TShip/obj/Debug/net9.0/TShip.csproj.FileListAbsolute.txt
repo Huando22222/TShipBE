@@ -32,3 +32,4 @@ E:\projects\.Net\TShip\TShip\obj\Debug\net9.0\TShip.pdb
 E:\projects\.Net\TShip\TShip\obj\Debug\net9.0\TShip.genruntimeconfig.cache
 E:\projects\.Net\TShip\TShip\obj\Debug\net9.0\ref\TShip.dll
 E:\projects\.Net\TShip\TShip\bin\Debug\net9.0\Scalar.AspNetCore.dll
+E:\projects\.Net\TShip\TShip\obj\Debug\net9.0\TShip.sourcelink.json
