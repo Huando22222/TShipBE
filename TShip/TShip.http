@@ -1,0 +1,6 @@
+@TShip_HostAddress = http://localhost:5234
+
+GET {{TShip_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
