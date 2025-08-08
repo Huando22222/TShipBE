@@ -1,9 +1,15 @@
 ﻿using Scalar.AspNetCore;
+using TShip.ConfigurationBindings;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
+//DI (dependency injection) 
+builder.Services
+    .AddJwtConfig(builder.Configuration)
+    .AddAccountBindings();
+
+// Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
