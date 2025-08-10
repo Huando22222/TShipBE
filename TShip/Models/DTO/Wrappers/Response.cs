@@ -4,7 +4,7 @@
     //nhưng success = false để báo lỗi nghiệp vụ (business logic).
     public class Response<T>
     {
-        public MetaData Meta { get; set; } = default!;
+        public MetaData? Meta { get; set; } = default!;
         public bool Success { get; set; }//business logic
         public string? Message { get; set; }
         public T? Data { get; set; }

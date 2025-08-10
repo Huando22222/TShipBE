@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using Scalar.AspNetCore;
 using TShip.ConfigurationBindings;
+using TShip.Filters;
+using TShip.Middleware;
 using TShip.Models.DTO.Wrappers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Services.AddControllers();
 builder.Services.AddControllers(options =>
 {
+    //options.Filters.Add<ValidateMetaFilter>();
     options.Filters.Add<ValidateMetaFilter>();
 });
 builder.Services.AddOpenApi();
@@ -18,38 +21,17 @@ builder.Services
     .AddApplicationDbContext(builder.Configuration)
     .AddJwtConfig(builder.Configuration)
     .AddAccountBindings()
-    .Configure<ApiBehaviorOptions>(
-        options =>
-        {
-            options.InvalidModelStateResponseFactory = context =>
-            {
-                var env = context.HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
-                if (env.IsDevelopment())
-                {
-                    // Dev trả lỗi chi tiết
-                    //return new BadRequestObjectResult(context.ModelState);
-                    return new BadRequestObjectResult(new
-                    {
-                        success = false,
-                        message = "Dữ liệu không hợp lệ."
-                    });
-                }
-                else
-                {
-                    // Prod trả lỗi chung
-                    return new BadRequestObjectResult(new
-                    {
-                        success = false,
-                        message = "Dữ liệu không hợp lệ."
-                    });
-                }
-            };
-        }
-    );
+    .Configure<ApiBehaviorOptions>(options =>
+    {
+        options.SuppressModelStateInvalidFilter = true;
+    })
+    ;
 
 
 
 var app = builder.Build();
+
+app.UseMiddleware<MetaValidationMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -66,45 +48,47 @@ app.MapControllers();
 
 app.Run();
 
-public class ValidateMetaFilter : IActionFilter
+public class ValidateMetaFilter : IAsyncActionFilter
 {
-    public void OnActionExecuting(ActionExecutingContext context)
+    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        var requestArg = context.ActionArguments.Values
-            .FirstOrDefault(v =>
-                v?.GetType().IsGenericType == true &&
-                v.GetType().GetGenericTypeDefinition() == typeof(Request<>));
-
-        if (requestArg == null)
-            return; // Không áp dụng nếu action không nhận Request<>
-
-        var meta = requestArg.GetType().GetProperty("Meta")?.GetValue(requestArg) as MetaData;
-        var data = requestArg.GetType().GetProperty("Data")?.GetValue(requestArg);
-
-        // Check meta/data có null không
-        if (meta == null || data == null)
+        if (context.ActionArguments.Count == 0)
         {
             context.Result = new BadRequestObjectResult(new
             {
                 success = false,
-                message = "Dữ liệu không hợp lệ."
+                message = "không hợp lệ."
             });
             return;
         }
 
-        // Check server name
-        if (!string.Equals(meta.Server, "TSKD", StringComparison.OrdinalIgnoreCase))
+        var requestObj = context.ActionArguments.Values.FirstOrDefault();
+        var metaProp = requestObj?.GetType().GetProperty("Meta")?.GetValue(requestObj);
+
+        var serverValue = metaProp?.GetType().GetProperty("Server")?.GetValue(metaProp)?.ToString();
+        if (metaProp == null || !string.Equals(serverValue, "TShip", StringComparison.OrdinalIgnoreCase))
         {
             context.Result = new BadRequestObjectResult(new
             {
                 success = false,
-                message = "Dữ liệu không hợp lệ."
+                message = "không hợp lệ."
             });
+            return;
         }
-    }
 
-    public void OnActionExecuted(ActionExecutedContext context)
-    {
-        // Không cần xử lý sau khi action chạy
+        // Nếu ModelState không hợp lệ (Data invalid)
+        if (!context.ModelState.IsValid)
+        {
+            context.Result = new OkObjectResult(new Response<object?>
+            {
+                Meta = (MetaData)metaProp,
+                Success = false,
+                Message = "request không hợp lệ.",
+                Data = null
+            });
+            return;
+        }
+
+        await next();
     }
 }
