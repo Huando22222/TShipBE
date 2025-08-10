@@ -12,12 +12,9 @@ namespace TShip.Models.Entities
         public DateTime LastLogin { get; set; }
         public int FailedLoginAttempts { get; set; } = 0;
         // Bảng phụ Role nếu nhiều roles
-        public ICollection<AccountRole> AccountRoles { get; set; } = new List<AccountRole>();
+        public ICollection<AccountRole> AccountRoles { get; set; } = [];
         public  string? Token { get; set; }
         public  string? RefreshToken { get; set; }
         // FK
-        public Guid UserId { get; set; }
-        
     }
-
 }

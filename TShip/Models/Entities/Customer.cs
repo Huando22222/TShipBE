@@ -5,8 +5,9 @@ namespace TShip.Models.Entities
     public class Customer
     {
         [Key]
-        public Guid Id { get; set; } // Dùng chung với User.Id
+        public Guid Id { get; set; }
         public Guid AccountId { get; set; }
+        public Guid UserId { get; set; }
         public User User { get; set; } = null!;
     }
 

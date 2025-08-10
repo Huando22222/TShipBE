@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TShip.Data;
 using TShip.Models.DTO.Auth;
+using TShip.Models.DTO.Wrappers;
 using TShip.Models.Entities;
 using TShip.Repositories;
 
@@ -9,27 +10,15 @@ namespace TShip.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController(IAccountRepo iAccountRepo) : ControllerBase //CustomeController
     {
-        private readonly IAccountRepo accountRepo;
-
-        public AccountController(IAccountRepo accountRepo)
-        {
-            this.accountRepo = accountRepo;
-        }
+        private readonly IAccountRepo iAccountRepo = iAccountRepo;
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] Request<RegisterRequest> request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var result = await accountRepo.Register(request);
-
-            if (!result.Success)
-                return BadRequest(result.Message);
-
-            return Ok(new { Message = "Đăng ký thành công", AccountId = result.AccountId });
+            var response = await iAccountRepo.Register(request);
+            return Ok(response);
         }
     }
 }

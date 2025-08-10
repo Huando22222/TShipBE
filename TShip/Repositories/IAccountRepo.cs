@@ -1,9 +1,10 @@
 ﻿using TShip.Models.DTO.Auth;
+using TShip.Models.DTO.Wrappers;
 
 namespace TShip.Repositories
 {
     public interface IAccountRepo
     {
-        Task<(bool Success, string? Message, Guid? AccountId)> Register(RegisterRequest request);
+        Task<Response<object>> Register(Request<RegisterRequest> request);
     }
 }

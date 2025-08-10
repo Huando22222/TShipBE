@@ -1,35 +1,48 @@
 ﻿using CryptoHelper;
+using Microsoft.EntityFrameworkCore;
 using TShip.Data;
 using TShip.Models.DTO.Auth;
+using TShip.Models.DTO.Wrappers;
 using TShip.Models.Entities;
 
 namespace TShip.Repositories
 {
-    public class AccountRepo: IAccountRepo
+    public class AccountRepo(ApplicationDbContext dbContext) : IAccountRepo
     {
-        private readonly ApplicationDbContext dbContext;
+        private readonly ApplicationDbContext dbContext = dbContext;
 
-        public AccountRepo(ApplicationDbContext dbContext)
+        public async Task<Response<object>> Register(Request<RegisterRequest> request)
         {
-            this.dbContext = dbContext;
-        }
+            // Check username tồn tại
+            if (await dbContext.Accounts.AnyAsync(a => a.Username == request.Data.Username))
+            {
+                return new Response<object>
+                {
+                    Meta = request.Meta,
+                    Success = false,
+                    Message = "Username đã tồn tại",
+                    Data = null
+                };
+            }
 
-        public async Task<(bool Success, string? Message, Guid? AccountId)> Register(RegisterRequest request)
-        {
-            if (dbContext.Accounts.Any(a => a.Username == request.Username))
-                return (false, "username đã tồn tại", null);
-
+            // Tạo tài khoản mới
             var account = new Account
             {
                 Id = Guid.NewGuid(),
-                Username = request.Username,
-                Password = Crypto.HashPassword(request.Password),
-                UserId = Guid.Empty
+                Username = request.Data.Username,
+                Password = Crypto.HashPassword(request.Data.Password),
             };
 
             dbContext.Accounts.Add(account);
             await dbContext.SaveChangesAsync();
-            return (true, null, account.Id);
+
+            return new Response<object>
+            {
+                Meta = request.Meta,
+                Success = true,
+                Message = "Đăng ký thành công",
+                Data = null
+            };
         }
     }
 }
