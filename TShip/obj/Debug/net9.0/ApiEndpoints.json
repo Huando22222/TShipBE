@@ -1,18 +1,80 @@
 [
   {
     "ContainingType": "TShip.Controllers.AccountController",
-    "Method": "Register",
-    "RelativePath": "api/Account/register",
+    "Method": "SignIn",
+    "RelativePath": "api/Account/SignIn",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "request",
-        "Type": "TShip.Models.DTO.Wrappers.Request\u00601[[TShip.Models.DTO.Auth.RegisterRequest, TShip, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "TShip.Models.DTO.Wrappers.Request\u00601[[TShip.Models.DTO.RequestDTO.Auth.SignInAccountRequestDTO, TShip, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "TShip.Models.DTO.Wrappers.Response\u00601[[System.Object, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "TShip.Controllers.AccountController",
+    "Method": "SignUp",
+    "RelativePath": "api/Account/SignUp",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "TShip.Models.DTO.Wrappers.Request\u00601[[TShip.Models.DTO.RequestDTO.Auth.SignUpAccountRequestDTO, TShip, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "TShip.Models.DTO.Wrappers.Response\u00601[[System.Object, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "TShip.Controllers.UserController",
+    "Method": "SignUp",
+    "RelativePath": "api/User/SignUp",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "TShip.Models.DTO.Wrappers.Request\u00601[[TShip.Models.DTO.RequestDTO.Auth.SignUpUserRequestDTO, TShip, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "TShip.Models.DTO.Wrappers.Response\u00601[[System.Object, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   }
 ]

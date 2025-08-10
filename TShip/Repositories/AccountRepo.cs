@@ -1,20 +1,22 @@
 ﻿using CryptoHelper;
 using Microsoft.EntityFrameworkCore;
 using TShip.Data;
-using TShip.Models.DTO.Auth;
+using TShip.Models.DTO.RequestDTO.Auth;
+using TShip.Models.DTO.ResponseDTO;
 using TShip.Models.DTO.Wrappers;
 using TShip.Models.Entities;
+using TShip.Repositories.Interfaces;
+using TShip.Services.Interfaces;
 
 namespace TShip.Repositories
 {
-    public class AccountRepo(ApplicationDbContext dbContext) : IAccountRepo
+    public class AccountRepo(ApplicationDbContext _dbContext , IJwtService _iJwtService) : IAccountRepo
     {
-        private readonly ApplicationDbContext dbContext = dbContext;
 
-        public async Task<Response<object>> Register(Request<RegisterRequest> request)
+        public async Task<Response<object>> SignUp(Request<SignUpAccountRequestDTO> request)
         {
             // Check username tồn tại
-            if (await dbContext.Accounts.AnyAsync(a => a.Username == request.Data.Username))
+            if (await _dbContext.Accounts.AnyAsync(a => a.Username == request.Data.Username))
             {
                 return new Response<object>
                 {
@@ -33,8 +35,8 @@ namespace TShip.Repositories
                 Password = Crypto.HashPassword(request.Data.Password),
             };
 
-            dbContext.Accounts.Add(account);
-            await dbContext.SaveChangesAsync();
+            _dbContext.Accounts.Add(account);
+            await _dbContext.SaveChangesAsync();
 
             return new Response<object>
             {
@@ -44,5 +46,67 @@ namespace TShip.Repositories
                 Data = null
             };
         }
+
+        public async Task<Response<SignInAccountDTO>> SignIn(Request<SignInAccountRequestDTO> request)
+        {
+            var response = new Response<SignInAccountDTO>
+            {
+                Meta = request.Meta
+            };
+
+            var account = await _dbContext.Accounts
+               .Include(a => a.AccountRoles)
+               .FirstOrDefaultAsync(a => a.Username == request.Data.Username);
+
+            if (account == null)
+            {
+                response.Success = false;
+                response.Message = "Tài khoản không tồn tại";
+                response.Data = null;
+                return response;
+            }
+
+            bool isValid = Crypto.VerifyHashedPassword(account.Password, request.Data.Password);
+            if (!isValid)
+            {
+                response.Success = false;
+                response.Message = "Mật khẩu không đúng";
+                response.Data = null;
+                return response;
+            }
+
+            // Tạo token mới và refresh token mới
+            string newToken = _iJwtService.GenerateToken(account.Id, account.Username);
+            string newRefreshToken = _iJwtService.GenerateRefreshToken(account.Id, account.Username);
+
+            // Gán lại và cập nhật
+            account.Token = newToken;
+            account.RefreshToken = newRefreshToken;
+            account.LastLogin = DateTime.UtcNow;
+            account.FailedLoginAttempts = 0;
+
+            await _dbContext.SaveChangesAsync();
+
+            List<string> roleNames = account.AccountRoles?
+                .Select(r => r.Role.ToString())
+                .ToList() ?? new List<string>();
+            var signInAccountDTO = new SignInAccountDTO
+            {
+                Id = account.Id,
+                Username = account.Username,
+                IsActive = account.IsActive,
+                LastLogin = account.LastLogin,
+                FailedLoginAttempts = account.FailedLoginAttempts,
+                Token = newToken,
+                RefreshToken = newRefreshToken,
+                Roles = roleNames
+            };
+
+            response.Success = true;
+            response.Message = "Đăng nhập thành công";
+            response.Data = signInAccountDTO;
+            return response;
+        }
+ 
     }
 }

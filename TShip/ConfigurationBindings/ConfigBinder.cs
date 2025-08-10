@@ -2,9 +2,9 @@
 
 namespace TShip.ConfigurationBindings
 {
-    public static class JwtConfigBinder
+    public static class ConfigBinder
     {
-        public static IServiceCollection AddJwtConfig(this IServiceCollection services, IConfiguration config)
+        public static IServiceCollection AddConfig(this IServiceCollection services, IConfiguration config)
         {
             services.Configure<JwtSettings>(config.GetSection("JwtSettings"));
             return services;

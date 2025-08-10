@@ -3,5 +3,6 @@
     public interface IJwtService
     {
         string GenerateToken(Guid userId, string username);
+        string GenerateRefreshToken(Guid userId, string username);
     }
 }

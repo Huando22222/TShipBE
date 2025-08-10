@@ -22,6 +22,8 @@
   <ItemGroup>
     <Folder Include="Helpers\" />
     <Folder Include="Injection\" />
+    <Folder Include="Models\DTO\DTO\" />
+    <Folder Include="wwwroot\banners\" />
   </ItemGroup>
 
 </Project>

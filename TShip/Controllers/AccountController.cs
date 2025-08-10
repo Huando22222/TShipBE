@@ -1,10 +1,10 @@
 ﻿using CryptoHelper;
 using Microsoft.AspNetCore.Mvc;
 using TShip.Data;
-using TShip.Models.DTO.Auth;
+using TShip.Models.DTO.RequestDTO.Auth;
 using TShip.Models.DTO.Wrappers;
 using TShip.Models.Entities;
-using TShip.Repositories;
+using TShip.Repositories.Interfaces;
 
 namespace TShip.Controllers
 {
@@ -14,11 +14,16 @@ namespace TShip.Controllers
     {
         private readonly IAccountRepo iAccountRepo = iAccountRepo;
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] Request<RegisterRequest> request)
+        [HttpPost("SignUp")]
+        public async Task<ActionResult<Response<object>>> SignUp([FromBody] Request<SignUpAccountRequestDTO> request)
         {
-            var response = await iAccountRepo.Register(request);
-            return Ok(response);
+            return Ok(await iAccountRepo.SignUp(request));
+        }
+
+        [HttpPost("SignIn")]
+        public async Task<ActionResult<Response<object>>> SignIn([FromBody] Request<SignInAccountRequestDTO> request)
+        {
+            return Ok(await iAccountRepo.SignIn(request));
         }
     }
 }
