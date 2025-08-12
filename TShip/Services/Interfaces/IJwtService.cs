@@ -1,8 +1,11 @@
-﻿namespace TShip.Services.Interfaces
+﻿using TShip.Models.DTO.DTO;
+
+namespace TShip.Services.Interfaces
 {
     public interface IJwtService
     {
-        string GenerateToken(Guid userId, string username);
-        string GenerateRefreshToken(Guid userId, string username);
+        string? GenerateToken(TokenPayLoadDTO payload, double? expiresInDays = null);
+        string? GenerateRefreshToken(String token);
+        TokenPayLoadDTO? DecodeToken(string token);
     }
 }

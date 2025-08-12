@@ -1,6 +1,7 @@
 ﻿using CryptoHelper;
 using Microsoft.EntityFrameworkCore;
 using TShip.Data;
+using TShip.Models.DTO.DTO;
 using TShip.Models.DTO.RequestDTO.Auth;
 using TShip.Models.DTO.ResponseDTO;
 using TShip.Models.DTO.Wrappers;
@@ -75,11 +76,25 @@ namespace TShip.Repositories
                 return response;
             }
 
-            // Tạo token mới và refresh token mới
-            string newToken = _iJwtService.GenerateToken(account.Id, account.Username);
-            string newRefreshToken = _iJwtService.GenerateRefreshToken(account.Id, account.Username);
+            // Lấy danh sách roles
+            List<string> roleNames = account.AccountRoles?
+                .Select(r => r.Role.ToString())
+                .ToList() ?? [];
 
-            // Gán lại và cập nhật
+            // Chuẩn bị payload cho token
+            var payload = new TokenPayLoadDTO
+            {
+                AccountId = account.Id,
+                UserId = account.Id, // Nếu bạn có UserId riêng thì đổi giá trị này
+                Username = account.Username,
+                Roles = roleNames
+            };
+
+            // Tạo token & refresh token
+            string newToken = _iJwtService.GenerateToken(payload);
+            string newRefreshToken = _iJwtService.GenerateToken(payload  );
+
+            // Cập nhật account
             account.Token = newToken;
             account.RefreshToken = newRefreshToken;
             account.LastLogin = DateTime.UtcNow;
@@ -87,9 +102,6 @@ namespace TShip.Repositories
 
             await _dbContext.SaveChangesAsync();
 
-            List<string> roleNames = account.AccountRoles?
-                .Select(r => r.Role.ToString())
-                .ToList() ?? new List<string>();
             var signInAccountDTO = new SignInAccountDTO
             {
                 Id = account.Id,
